@@ -95,6 +95,19 @@ router.get('/current_user', passport.authenticate('jwt', {session: false}), (req
   });
 });
 
+router.get('/cart', passport.authenticate('jwt', {session: false}), (req, res) => {
+  Cart.findOne({user: req.user.id}).populate('products.product').then(cart => {
+    if (cart) {
+      if (cart.products.length === 0) {
+        return res.json({message: "Cart is empty"});
+      }
+      res.json(cart);
+    } else {
+      res.json({message: "Cart not initialized"});
+    }
+  });
+});
+
 router.put('/address', passport.authenticate('jwt', {session: false}), (req, res) => {
   User.findById(req.user.id).then(user => {
     const addressToBeSet = {
@@ -119,10 +132,11 @@ router.post('/place_order', passport.authenticate('jwt', {session: false}), (req
         return res.json({message: "Address not set"});
       }
       const order = new Order({
-        products: cart.products,
+        user: req.user.id,
         netAmount: cart.products.reduce((accumulator, currentValue) => accumulator + currentValue.product.price, 0),
         shippingAddress: req.user.address
       });
+      cart.products.map(prodi => order.products.unshift({product: prodi.id}));
       order.save().then(order => res.json(order));
     } else {
       res.json({message: "Cart not initialized"});
