@@ -19,7 +19,9 @@ app.use(passport.initialize());
 require('./services/passport')(passport);
 
 const users = require('./routes/users');
+const products = require('./routes/products');
 app.use('/api/users', users);
+app.use('/api/products', products);
 
 const PORT = process.env.PORT || 5000;
 

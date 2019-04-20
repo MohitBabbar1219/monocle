@@ -7,6 +7,7 @@ const passport = require('passport');
 const validateRegisterInput = require('./../helpers/registerValidations');
 const validateLoginInput = require('./../helpers/loginValidations');
 const User = require('./../models/user');
+const Cart = require('../models/cart');
 const {secret} = require('./../config/keys');
 
 router.post('/register', (req, res) => {
@@ -76,11 +77,18 @@ router.post('/login', (req, res) => {
 });
 
 router.get('/current_user', passport.authenticate('jwt', {session: false}), (req, res) => {
-  res.json({
-    name: req.user.name,
-    email: req.user.email,
-    avatar: req.user.avatar,
-    id: req.user.id
+  Cart.findOne({user: req.user.id}).then(cart => {
+    let userObject = {
+      name: req.user.name,
+      email: req.user.email,
+      avatar: req.user.avatar,
+      id: req.user.id
+    };
+    if (cart) {
+      res.json({...userObject, cart});
+    } else {
+      res.json(userObject);
+    }
   });
 });
 
