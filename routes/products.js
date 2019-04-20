@@ -40,13 +40,13 @@ router.put('/:id/add_to_cart', passport.authenticate('jwt', { session: false }),
   Product.findById(req.params.id).then(product => {
     Cart.findOne({user: req.user.id}).then(cart => {
       if (cart) {
-        cart.products.unshift(product.id);
+        cart.products.unshift({product: product.id});
         cart.save().then(cart => res.json(cart));
       } else {
         const newCart = new Cart({
           user: req.user.id
         });
-        newCart.products.unshift(product.id);
+        newCart.products.unshift({product: product.id});
         newCart.save().then(cart => res.json(cart));
       }
     });

@@ -110,21 +110,17 @@ router.put('/address', passport.authenticate('jwt', {session: false}), (req, res
 });
 
 router.post('/place_order', passport.authenticate('jwt', {session: false}), (req, res) => {
-  Cart.find().populate({path: 'products.product', model: 'products'}).then(pros => console.log(pros.map(pro => pro.products)));
-  Cart.findOne({user: req.user.id}).populate('products').then(cart => {
+  Cart.findOne({user: req.user.id}).populate('products.product').then(cart => {
     if (cart) {
-      console.log(cart);
       if (cart.products.length === 0) {
         return res.json({message: "Cart is empty"});
       }
       if (!req.user.address) {
         return res.json({message: "Address not set"});
       }
-      console.log(cart.products.reduce((accumulator, currentValue) => accumulator + currentValue.price, 0));
-      console.log(cart.products);
       const order = new Order({
         products: cart.products,
-        netAmount: cart.products.reduce((accumulator, currentValue) => accumulator + currentValue.price, 0),
+        netAmount: cart.products.reduce((accumulator, currentValue) => accumulator + currentValue.product.price, 0),
         shippingAddress: req.user.address
       });
       order.save().then(order => res.json(order));
