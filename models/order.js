@@ -7,13 +7,13 @@ const orderSchema = new Schema({
       type: Schema.Types.ObjectId
     }
   }],
-  price: {
+  netAmount: {
     type: Number,
     required: true
   },
   shippingAddress: {
     buildingNumber: {
-      type: Number,
+      type: String,
       required: true
     },
     street: {

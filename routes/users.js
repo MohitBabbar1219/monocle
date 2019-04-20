@@ -8,6 +8,8 @@ const validateRegisterInput = require('./../helpers/registerValidations');
 const validateLoginInput = require('./../helpers/loginValidations');
 const User = require('./../models/user');
 const Cart = require('../models/cart');
+const Product = require('../models/product');
+const Order = require('../models/order');
 const {secret} = require('./../config/keys');
 
 router.post('/register', (req, res) => {
@@ -82,12 +84,52 @@ router.get('/current_user', passport.authenticate('jwt', {session: false}), (req
       name: req.user.name,
       email: req.user.email,
       avatar: req.user.avatar,
-      id: req.user.id
+      id: req.user.id,
+      address: req.user.address
     };
     if (cart) {
       res.json({...userObject, cart});
     } else {
       res.json(userObject);
+    }
+  });
+});
+
+router.put('/address', passport.authenticate('jwt', {session: false}), (req, res) => {
+  User.findById(req.user.id).then(user => {
+    const addressToBeSet = {
+        buildingNumber: req.body.buildingNumber,
+        street: req.body.street,
+        zipcode: req.body.zipcode,
+        state: req.body.state
+      }
+    ;
+    user.address = addressToBeSet;
+    user.save().then(user => res.json(user));
+  });
+});
+
+router.post('/place_order', passport.authenticate('jwt', {session: false}), (req, res) => {
+  Cart.find().populate({path: 'products.product', model: 'products'}).then(pros => console.log(pros.map(pro => pro.products)));
+  Cart.findOne({user: req.user.id}).populate('products').then(cart => {
+    if (cart) {
+      console.log(cart);
+      if (cart.products.length === 0) {
+        return res.json({message: "Cart is empty"});
+      }
+      if (!req.user.address) {
+        return res.json({message: "Address not set"});
+      }
+      console.log(cart.products.reduce((accumulator, currentValue) => accumulator + currentValue.price, 0));
+      console.log(cart.products);
+      const order = new Order({
+        products: cart.products,
+        netAmount: cart.products.reduce((accumulator, currentValue) => accumulator + currentValue.price, 0),
+        shippingAddress: req.user.address
+      });
+      order.save().then(order => res.json(order));
+    } else {
+      res.json({message: "Cart not initialized"});
     }
   });
 });

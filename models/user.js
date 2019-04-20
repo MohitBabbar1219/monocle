@@ -22,6 +22,24 @@ const userSchema = new Schema({
   date: {
     type: Date,
     default: Date.now
+  },
+  address: {
+    buildingNumber: {
+      type: String,
+      required: true
+    },
+    street: {
+      type: String,
+      required: true
+    },
+    zipcode: {
+      type: Number,
+      required: true
+    },
+    state: {
+      type: String,
+      required: true
+    }
   }
 });
 

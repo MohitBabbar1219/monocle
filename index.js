@@ -14,6 +14,11 @@ mongoose.connect(db)
   .then(() => console.log('successfully connected to database...'))
   .catch((err) => console.log('error occurred while connecting to database', err));
 
+require('./models/order');
+require('./models/cart');
+require('./models/product');
+require('./models/user');
+
 app.use(passport.initialize());
 // app.use();
 require('./services/passport')(passport);

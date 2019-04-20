@@ -19,4 +19,4 @@ const productSchema = new Schema({
   }
 });
 
-module.exports = User = mongoose.model('products', productSchema);
+module.exports = User = mongoose.model('products', productSchema, 'products');
