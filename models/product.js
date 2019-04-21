@@ -13,6 +13,14 @@ const productSchema = new Schema({
   images: [{
     type: String
   }],
+  description: {
+    type: String,
+    required: true
+  },
+  arModel: {
+    type: String,
+    required: true
+  },
   date: {
     type: Date,
     default: Date.now

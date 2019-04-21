@@ -31,7 +31,9 @@ router.post('/', (req, res) => {
   const newProduct = new Product({
     name: req.body.name,
     price: req.body.price,
-    images: req.body.images
+    images: req.body.images,
+    description: req.body.description,
+    arModel: req.body.arModel
   });
   newProduct.save().then(product => res.json(product));
 });
